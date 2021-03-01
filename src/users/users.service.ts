@@ -9,7 +9,7 @@ export class UserService {
   
     async register(user: User): Promise<string> {
         // Check that user is valid
-        if(user.email !== undefined && user.password !== undefined && user.organization !== undefined && user.name !== undefined) {
+        if(user && user.email !== undefined && user.password !== undefined && user.organization !== undefined && user.name !== undefined) {
             // Check that user email is not already in use
             const email = user.email;
             const found = await this.userModel.find({ email }).exec();
