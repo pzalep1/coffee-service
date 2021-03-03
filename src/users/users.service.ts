@@ -22,7 +22,7 @@ export class UserService {
                 user.password = hash;              
                 const userDoc = new this.userModel({ ...user, _id: new Types.ObjectId()});
                 await userDoc.save();
-                // this.login(user);
+                this.login(user);
             } else {
                 throw new HttpException('Email already in use!', HttpStatus.CONFLICT);
             }
@@ -33,6 +33,17 @@ export class UserService {
     }
 
     async login(user: User): Promise<string> {
+        // Check that the user has sent up the email and password
+        // Check that the user exists 
+        // Check that password match
+        // generate token (jwt or passport*)
+        // return the token to get returned to the client
+        if(user && user.email !== undefined && user.password !== undefined)
+        {
+          const email = user.email;
+          const password = user.password;
+          const bFoundUser = await this.userModel.find({ email }).exec();
+        }
         return user.name;
     }
 }
