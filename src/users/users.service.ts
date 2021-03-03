@@ -12,7 +12,7 @@ export class UserService {
         if(user && user.email !== undefined && user.password !== undefined && user.organization !== undefined && user.name !== undefined) {
             // Check that user email is not already in use
             const email = user.email;
-            const found = await this.userModel.find({ email }).exec();
+            const found = await this.userModel.findOne({ email }).exec();
             console.log(found);
             if (found) {                      
                 // Salt password
@@ -45,5 +45,13 @@ export class UserService {
           const bFoundUser = await this.userModel.find({ email }).exec();
         }
         return user.name;
+    }
+
+    async getUsers(): Promise<User[]> {
+        return await this.userModel.find().exec();
+    }
+
+    async getSingleUser(email: string): Promise<User> {
+        return await this.userModel.findOne({ email }).exec();
     }
 }

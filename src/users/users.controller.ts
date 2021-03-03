@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { User } from 'src/Models/user.schema';
 import { UserService } from './users.service';
 
 @Controller()
@@ -6,9 +7,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/users')
-  register(@Body('user') IUser: any): any {
-    this.userService.register(IUser);
-    return 'good to go';
+  register(@Body('user') IUser: any): string {
+    const token = await this.userService.register(IUser);
+    return token;
   }
 
   @Post('/users/tokens')
@@ -17,13 +18,13 @@ export class UserController {
   }
 
   @Get('/users')
-  getAllUsers(): string {
-      return 'users!';
+  async getAllUsers(): Promise<User[]> {
+      return await this.userService.getUsers();
   }
   
   @Get('/user/:userId')
-  getUser(@Param('userId') userId: string): string {
-    return 'user info goes here';
+  async getUser(@Param('userId') userId: string): Promise<User> {
+    return await this.userService.getSingleUser(userId);
   }
 
 
