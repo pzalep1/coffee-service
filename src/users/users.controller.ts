@@ -7,35 +7,33 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/users')
-  register(@Body('user') IUser: any): string {
-    const token = await this.userService.register(IUser);
+  async register(@Body('user') user: any): Promise<string> {
+    const token = await this.userService.register(user);
     return token;
   }
 
   @Post('/users/tokens')
-  login(): string {
-      return 'logged in!'
+  async login(@Body('user') user: any): Promise<string> {
+    return await this.userService.login(user);
   }
 
   @Get('/users')
   async getAllUsers(): Promise<User[]> {
-      return await this.userService.getUsers();
+    return await this.userService.getUsers();
   }
-  
+
   @Get('/user/:userId')
   async getUser(@Param('userId') userId: string): Promise<User> {
     return await this.userService.getSingleUser(userId);
   }
 
-
   @Get('users/tokens')
   verifyToken(): string {
-      return 'working token!'
+    return 'working token!';
   }
 
   @Post('/users/:userId/privileges')
   addPrivilege(@Param('userId') userId: string): string {
     return userId;
   }
-
 }
