@@ -8,8 +8,8 @@ export class AppController {
   @Get()
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: 'If the object is unreleased and requester is not the author || If the object is waiting, review, or proofing and the requester is not privileged' })
-  @ApiNotFoundResponse({ description: 'User is not found || Learning Object is not found' })
+  @ApiForbiddenResponse({ description: '' })
+  @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
   getHello(): string[] {
     return this.appService.getHello();
