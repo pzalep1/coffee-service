@@ -7,7 +7,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/users')
-  register(@Body('user') IUser: any): string {
+  async register(@Body('user') IUser: any): Promise<string> {
     const token = await this.userService.register(IUser);
     return token;
   }
