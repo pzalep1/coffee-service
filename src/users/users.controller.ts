@@ -13,7 +13,7 @@ export class UserController {
   }
 
   @Post('/users/tokens')
-  async login(@Body('user') user: any): Promise<string> {
+  async login(@Body('user') user: any): Promise<any> {
     return await this.userService.login(user);
   }
 

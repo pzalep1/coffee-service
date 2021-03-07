@@ -4,9 +4,14 @@ import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../Models/user.schema';
 
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private userModel: Model<any>) {}
+  constructor(
+    @InjectModel('User') private userModel: Model<any>,
+    private jwtService: JwtService,
+  ) {}
 
   async register(user: User): Promise<string> {
     // Check that user is valid
@@ -45,32 +50,34 @@ export class UserService {
     return 'yee';
   }
 
-  async login(user: User): Promise<string> {
+  async login(user: User): Promise<any> {
     // Check that the user has sent up the email and password
     if (user && user.email !== undefined && user.password !== undefined) {
       // Check that the user exists
-
       const email = user.email;
       const password = user.password;
       const foundUser = await this.userModel.findOne({ email }).exec();
 
       // Check that password match
-
       if (foundUser) {
-        const salt = await bcrypt.genSalt(10);
         const hash = foundUser.password;
+        await bcrypt.genSalt(10);
         const isMatch = await bcrypt.compare(password, hash);
 
         if (isMatch) {
-          console.log('Match');
+          console.log('Passwords Matched');
+          // Generate token (jwt or passport*)
+          // return the token to get returned to the client
+          const payload = { name: foundUser.name, sub: foundUser._id };
+          return { access_token: this.jwtService.sign(payload) };
         } else {
           console.log('Problem');
+          throw new HttpException(
+            'Password inputted does not match records',
+            HttpStatus.BAD_REQUEST,
+          );
         }
       }
-      // generate token (jwt or passport*)
-
-
-      // return the token to get returned to the client
     }
     return 'nope';
   }
