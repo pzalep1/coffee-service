@@ -1,20 +1,21 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
+import { AuthService } from '../auth/auth.service';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../Models/user.schema';
-
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User') private userModel: Model<any>,
-    private jwtService: JwtService,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
   ) {}
 
   async register(user: User): Promise<string> {
     // Check that user is valid
+    console.log(user.email);
     if (
       user &&
       user.email !== undefined &&
@@ -37,7 +38,7 @@ export class UserService {
           _id: new Types.ObjectId(),
         });
         await userDoc.save();
-        this.login(user);
+        this.authService.login(user);
       } else {
         throw new HttpException('Email already in use!', HttpStatus.CONFLICT);
       }
@@ -50,43 +51,11 @@ export class UserService {
     return 'yee';
   }
 
-  async login(user: User): Promise<any> {
-    // Check that the user has sent up the email and password
-    if (user && user.email !== undefined && user.password !== undefined) {
-      // Check that the user exists
-      const email = user.email;
-      const password = user.password;
-      const foundUser = await this.userModel.findOne({ email }).exec();
-
-      // Check that password match
-      if (foundUser) {
-        const hash = foundUser.password;
-        await bcrypt.genSalt(10);
-        const isMatch = await bcrypt.compare(password, hash);
-
-        if (isMatch) {
-          console.log('Passwords Matched');
-          // Generate token (jwt or passport*)
-          // return the token to get returned to the client
-          const payload = { name: foundUser.name, sub: foundUser._id };
-          return { access_token: this.jwtService.sign(payload) };
-        } else {
-          console.log('Problem');
-          throw new HttpException(
-            'Password inputted does not match records',
-            HttpStatus.BAD_REQUEST,
-          );
-        }
-      }
-    }
-    return 'nope';
-  }
-
   async getUsers(): Promise<User[]> {
-    return await this.userModel.find().exec();
+    return this.userModel.find().exec();
   }
 
   async getSingleUser(email: string): Promise<User> {
-    return await this.userModel.findOne({ email }).exec();
+    return this.userModel.findOne({ email }).exec();
   }
 }

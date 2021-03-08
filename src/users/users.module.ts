@@ -1,23 +1,22 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserController } from './users.controller';
 import { UserService } from './users.service';
-import { jwtConstants } from './constants';
 import { UserSchema } from '../Models/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-      ConfigModule,
-      MongooseModule.forFeature([{ name: 'User', schema: UserSchema }], 'frameworkDB'),
-      JwtModule.register({
-          secret: jwtConstants.secret,
-          signOptions: {expiresIn:'60s'},
-      }),
+    forwardRef(() => AuthModule),
+    ConfigModule,
+    MongooseModule.forFeature(
+      [{ name: 'User', schema: UserSchema }],
+      'frameworkDB',
+    ),
   ],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService, JwtModule],
+  exports: [UserService],
 })
 export class UsersModule {}
