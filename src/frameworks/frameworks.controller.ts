@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
+import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
 import { Framework } from 'src/Models/framework.schema';
 import { Guideline } from 'src/Models/guideline.schema';
 import { FrameworkService } from './frameworks.service';
@@ -8,22 +9,20 @@ export class FrameworkController {
   constructor(private readonly frameworkService: FrameworkService) {}
 
   @Post('/frameworks')
-  @ApiOkResponse({ description: '' })
-  @ApiBadRequestResponse({ description: '' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
-  async createFramework(@Body('framework') framework: any): Promise<void> {
+  @ApiOkResponse({ description: 'Framework Created!' })
+  @ApiBadRequestResponse({ description: 'Invalid name, year, or author for framework' })
+  @ApiBody({ description: 'Body for a framework', type: FrameworkWriteDTO })
+  async createFramework(@Body('framework') framework: FrameworkWriteDTO): Promise<void> {
     return this.frameworkService.createFramework({
         framework: framework
     });
   }
 
   @Patch('/frameworks/:frameworkId')
-  @ApiOkResponse({ description: '' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
+  @ApiOkResponse({ description: 'Framework Updated!' })
+  @ApiBadRequestResponse({ description: 'Invalid updates for framework' })
+  @ApiForbiddenResponse({ description: 'You are not permitted to update frameworks.' })
+  @ApiNotFoundResponse({ description: 'The specified framework was not found.' })
   @ApiBody({ })
   async updateFramework(@Param('frameworkId') frameworkId: string, @Body('framework') frameworkUpdates: any): Promise<void> {
     return this.frameworkService.updateFramework({
@@ -33,10 +32,8 @@ export class FrameworkController {
   }
 
   @Get('/frameworks')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
+  @ApiOkResponse({ description: 'OK.' })
+  @ApiBadRequestResponse({ description: 'Framework query invalid' })
   @ApiBody({ })
   async getFrameworks(@Query() query: any): Promise<Framework[]> {
         return this.frameworkService.getFrameworks({

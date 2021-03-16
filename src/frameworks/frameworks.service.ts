@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
 import { Framework } from 'src/Models/framework.schema';
 import { Guideline } from 'src/Models/guideline.schema';
 
@@ -7,7 +8,7 @@ export class FrameworkService {
   
     async createFramework(
         args: {
-            framework: any
+            framework: FrameworkWriteDTO
         }
     ): Promise<void> {
         throw Error('Method not implemented');
