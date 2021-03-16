@@ -4,22 +4,22 @@ import { ApiProperty } from '@nestjs/swagger';
 export class FrameworkWriteDTO {
 
     @ApiProperty({
-        name: '',
+        name: 'name',
         description: '',
         required: true,
         type: String,
-        isArray: true, // Set true for Open API enum dropdown menu
+        isArray: false, 
     })
     @IsDefined()
     @IsNotEmpty()
     @IsString()
-    bloom: string;
+    name: string;
 
 
 
 
     @ApiProperty({
-        name: '',
+        name: 'author',
         description: '',
         required: true,
         type: String,
@@ -30,13 +30,13 @@ export class FrameworkWriteDTO {
     @IsNotEmpty()
     @IsString()
     @MaxLength(1000)
-    text: string;
+    author: string;
  
 
 
 
     @ApiProperty({
-        name: '',
+        name: 'year',
         description: '',
         required: true,
         type: String,
@@ -45,6 +45,6 @@ export class FrameworkWriteDTO {
     @IsDefined()
     @IsNotEmpty()
     @IsString()
-    verb: string; // TODO: required, must be a verb within the list for the selected bloom
+    year: string;
 
 }
