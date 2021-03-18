@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
 import { Framework } from 'src/Models/framework.schema';
 import { Guideline } from 'src/Models/guideline.schema';
@@ -6,12 +8,16 @@ import { Guideline } from 'src/Models/guideline.schema';
 @Injectable()
 export class FrameworkService {
   
+    constructor(@InjectModel('Framework') private frameworkModel: Model<any>) {}
+    
     async createFramework(
         args: {
             framework: FrameworkWriteDTO
         }
     ): Promise<void> {
-        throw Error('Method not implemented');
+       const framework = new this.frameworkModel(args.framework);
+       await framework.save();
+       return framework._id;
     }
 
     async updateFramework(
@@ -20,7 +26,7 @@ export class FrameworkService {
             frameworkUpdates: any
         }
     ): Promise<void> {
-        throw Error('Method not implemented');
+        await this.frameworkModel.updateOne({ _id: new Types.ObjectId(args.frameworkId) }, { $set: { ...args.frameworkUpdates, lastUpdated: Date.now() }});
     }
 
     async getFrameworks(
@@ -28,7 +34,8 @@ export class FrameworkService {
             query
         }
     ): Promise<Framework[]> {
-        throw Error('Method not implemented');
+        // TODO: Build query
+        return await this.frameworkModel.find().exec();
     }
 
     async getSingleFramework(
@@ -36,7 +43,7 @@ export class FrameworkService {
             frameworkId: string,
         }
     ): Promise<Framework> {
-        throw Error('Method not implemented');
+        return await this.frameworkModel.findOne({_id: args.frameworkId});
     }
 
     async createGuideline(

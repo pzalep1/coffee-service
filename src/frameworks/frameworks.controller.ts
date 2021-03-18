@@ -24,7 +24,10 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: 'You are not permitted to update frameworks.' })
   @ApiNotFoundResponse({ description: 'The specified framework was not found.' })
   @ApiBody({ })
-  async updateFramework(@Param('frameworkId') frameworkId: string, @Body('framework') frameworkUpdates: any): Promise<void> {
+  async updateFramework(
+    @Param('frameworkId') frameworkId: string, 
+    @Body('framework') frameworkUpdates: any
+  ): Promise<void> {
     return this.frameworkService.updateFramework({
         frameworkId: frameworkId,
         frameworkUpdates: frameworkUpdates
@@ -35,7 +38,9 @@ export class FrameworkController {
   @ApiOkResponse({ description: 'OK.' })
   @ApiBadRequestResponse({ description: 'Framework query invalid' })
   @ApiBody({ })
-  async getFrameworks(@Query() query: any): Promise<Framework[]> {
+  async getFrameworks(
+    @Query() query: any
+  ): Promise<Framework[]> {
         return this.frameworkService.getFrameworks({
           query: query
         });
@@ -47,7 +52,9 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async getSingleFramework(@Param('frameworkId') frameworkId: string): Promise<Framework> {
+  async getSingleFramework(
+    @Param('frameworkId') frameworkId: string
+  ): Promise<Framework> {
         return this.frameworkService.getSingleFramework({
           frameworkId: frameworkId
         });
@@ -59,7 +66,10 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async createGuideline(@Param('frameworkId') frameworkId: string, @Body('guideline') guideline: any): Promise<void> {
+  async createGuideline(
+    @Param('frameworkId') frameworkId: string, 
+    @Body('guideline') guideline: any
+  ): Promise<void> {
         return this.frameworkService.createGuideline({
           frameworkId: frameworkId, 
           guideline: guideline
@@ -72,7 +82,11 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async updateGuideline(@Param('frameworkId') frameworkId: string, @Param('guidelineId') guidelineId: string, @Body('guideline') guideline: any): Promise<void> {
+  async updateGuideline(
+    @Param('frameworkId') frameworkId: string,
+    @Param('guidelineId') guidelineId: string,
+    @Body('guideline') guideline: any
+  ): Promise<void> {
         return this.frameworkService.updateGuideline({
           frameworkId: frameworkId, 
           guidelineId: guidelineId, 
@@ -86,7 +100,10 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async deleteGuideline(@Param('frameworkId') frameworkId: string, @Param('guidelineId') guidelineId: string): Promise<void> {
+  async deleteGuideline(
+    @Param('frameworkId') frameworkId: string, 
+    @Param('guidelineId') guidelineId: string
+  ): Promise<void> {
         return this.frameworkService.deleteGuideline({
           frameworkId: frameworkId, 
           guidelineId: guidelineId
@@ -99,7 +116,10 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async getSingleGuideline(@Param('frameworkId') frameworkId: string, @Param('guidelineId') guidelineId: string): Promise<Guideline> {
+  async getSingleGuideline(
+    @Param('frameworkId') frameworkId: string, 
+    @Param('guidelineId') guidelineId: string
+  ): Promise<Guideline> {
         return this.frameworkService.getSingleGuideline({
           frameworkId: frameworkId,
           guidelineId: guidelineId
@@ -112,7 +132,9 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async getGuidelinesForFramework(@Param('frameworkId') frameworkId: string): Promise<Guideline[]> {
+  async getGuidelinesForFramework(
+    @Param('frameworkId') frameworkId: string
+  ): Promise<Guideline[]> {
         return this.frameworkService.getGuidelinesForFramework({
           frameworkId:frameworkId,
         });
@@ -124,7 +146,9 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async getAllGuidelines(@Query() query: any): Promise<Guideline[]> {
+  async getAllGuidelines(
+    @Query() query: any
+  ): Promise<Guideline[]> {
         return this.frameworkService.getAllGuidelines({
           query: query,
         });

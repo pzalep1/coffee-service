@@ -5,7 +5,7 @@ export class FrameworkWriteDTO {
 
     @ApiProperty({
         name: 'name',
-        description: '',
+        description: 'The name of the framework',
         required: true,
         type: String,
         isArray: false, 
@@ -20,7 +20,7 @@ export class FrameworkWriteDTO {
 
     @ApiProperty({
         name: 'author',
-        description: '',
+        description: 'The group that has authored the framework',
         required: true,
         type: String,
         isArray: false,
@@ -37,7 +37,7 @@ export class FrameworkWriteDTO {
 
     @ApiProperty({
         name: 'year',
-        description: '',
+        description: 'The year that the framework was published for',
         required: true,
         type: String,
         isArray: false,
