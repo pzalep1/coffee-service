@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
@@ -15,9 +15,9 @@ export class FrameworkService {
             framework: FrameworkWriteDTO
         }
     ): Promise<void> {
-       const framework = new this.frameworkModel(args.framework);
-       await framework.save();
-       return framework._id;
+        const framework = new this.frameworkModel({ ...args.framework, _id: new Types.ObjectId()});
+        await framework.save();
+        return framework._id;
     }
 
     async updateFramework(
@@ -98,4 +98,6 @@ export class FrameworkService {
     ): Promise<Guideline []> {
         throw Error('Method not implemented');
     }
+    
+ 
 }

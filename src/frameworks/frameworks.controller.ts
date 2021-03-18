@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
 import { Framework } from 'src/Models/framework.schema';
@@ -12,6 +12,7 @@ export class FrameworkController {
   @ApiOkResponse({ description: 'Framework Created!' })
   @ApiBadRequestResponse({ description: 'Invalid name, year, or author for framework' })
   @ApiBody({ description: 'Body for a framework', type: FrameworkWriteDTO })
+  @UsePipes(new ValidationPipe({ transform: true }))
   async createFramework(@Body('framework') framework: FrameworkWriteDTO): Promise<void> {
     return this.frameworkService.createFramework({
         framework: framework
