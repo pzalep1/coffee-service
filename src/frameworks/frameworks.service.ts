@@ -8,7 +8,7 @@ import { Guideline } from 'src/Models/guideline.schema';
 @Injectable()
 export class FrameworkService {
   
-    constructor(@InjectModel('Framework') private frameworkModel: Model<any>) {}
+    constructor(@InjectModel('Framework') private frameworkModel: Model<any>, @InjectModel('Guideline') private guidelineModel: Model<any>) {}
     
     async createFramework(
         args: {
@@ -52,7 +52,9 @@ export class FrameworkService {
             guideline: any
         }
     ): Promise<void> {
-        throw Error('Method not implemented');
+        const guideline = new this.guidelineModel({ frameworkId: args.frameworkId, name: args.guideline.name, guidelineText: args.guideline.guidelineText, _id: new Types.ObjectId()});
+        await guideline.save();
+        return guideline._id;
     }
 
     async updateGuideline(
@@ -62,7 +64,7 @@ export class FrameworkService {
             guideline: any,
         }
     ): Promise<void> {
-        throw Error('Method not implemented');
+        await this.guidelineModel.updateOne({ _id: new Types.ObjectId(args.guideline) }, { $set: { ...args.guideline, lastUpdated: Date.now() }}).exec();;
     }
 
     async deleteGuideline(
@@ -71,7 +73,7 @@ export class FrameworkService {
             guidelineId: string,
         }
     ): Promise<void> {
-        throw Error('Method not implemented');
+        await this.guidelineModel.deleteOne({_id: new Types.ObjectId(args.guidelineId)}).exec();;
     }
 
     async getSingleGuideline(
@@ -80,7 +82,7 @@ export class FrameworkService {
             guidelineId: string,
         }
     ): Promise<Guideline> {
-        throw Error('Method not implemented');
+        return await this.guidelineModel.findOne({_id: new Types.ObjectId(args.guidelineId)}).exec();;
     }
 
     async getGuidelinesForFramework(
@@ -88,7 +90,7 @@ export class FrameworkService {
             frameworkId: string,
         }
     ): Promise<Guideline[]>{
-        throw Error('Method not implemented');
+        return await this.guidelineModel.find({frameworkId: args.frameworkId}).exec();;
     }
 
     async getAllGuidelines(
@@ -96,7 +98,7 @@ export class FrameworkService {
             query: any
         }
     ): Promise<Guideline []> {
-        throw Error('Method not implemented');
+        return await this.guidelineModel.find().exec();
     }
     
  
