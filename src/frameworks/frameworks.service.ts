@@ -26,7 +26,12 @@ export class FrameworkService {
             frameworkUpdates: any
         }
     ): Promise<void> {
-        await this.frameworkModel.updateOne({ _id: new Types.ObjectId(args.frameworkId) }, { $set: { ...args.frameworkUpdates, lastUpdated: Date.now() }});
+        const updated = await this.frameworkModel.updateOne({ _id: new Types.ObjectId(args.frameworkId) }, { $set: { ...args.frameworkUpdates, lastUpdated: Date.now() }});
+        if(updated.nModified > 0) {
+            return;
+        } else {
+            throw new HttpException('Framework not found!', HttpStatus.NOT_FOUND);
+        }
     }
 
     async getFrameworks(
@@ -43,7 +48,12 @@ export class FrameworkService {
             frameworkId: string,
         }
     ): Promise<Framework> {
-        return await this.frameworkModel.findOne({_id: args.frameworkId});
+        const framework = await this.frameworkModel.findOne({_id: args.frameworkId});
+        if(framework) {
+            return framework;
+        } else {
+            throw new HttpException('Framework not found!', HttpStatus.NOT_FOUND);
+        }
     }
 
     async createGuideline(
@@ -64,7 +74,7 @@ export class FrameworkService {
             guideline: any,
         }
     ): Promise<void> {
-        await this.guidelineModel.updateOne({ _id: new Types.ObjectId(args.guideline) }, { $set: { ...args.guideline, lastUpdated: Date.now() }}).exec();;
+        await this.guidelineModel.updateOne({ _id: new Types.ObjectId(args.guidelineId) }, { $set: { ...args.guideline, lastUpdated: Date.now() }}).exec();;
     }
 
     async deleteGuideline(
@@ -90,7 +100,7 @@ export class FrameworkService {
             frameworkId: string,
         }
     ): Promise<Guideline[]>{
-        return await this.guidelineModel.find({frameworkId: args.frameworkId}).exec();;
+        return await this.guidelineModel.find({frameworkId: args.frameworkId}).exec();
     }
 
     async getAllGuidelines(
@@ -98,6 +108,7 @@ export class FrameworkService {
             query: any
         }
     ): Promise<Guideline []> {
+        //TODO Build query
         return await this.guidelineModel.find().exec();
     }
     

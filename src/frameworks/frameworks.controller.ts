@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
+import { GuidelineWriteDTO } from 'src/DTO/guidelineDTO';
 import { Framework } from 'src/Models/framework.schema';
 import { Guideline } from 'src/Models/guideline.schema';
 import { FrameworkService } from './frameworks.service';
@@ -24,10 +25,11 @@ export class FrameworkController {
   @ApiBadRequestResponse({ description: 'Invalid updates for framework' })
   @ApiForbiddenResponse({ description: 'You are not permitted to update frameworks.' })
   @ApiNotFoundResponse({ description: 'The specified framework was not found.' })
-  @ApiBody({ })
+  @ApiBody({ description: 'Body for a partial framework', type: FrameworkWriteDTO })
+  @UsePipes(new ValidationPipe({ transform: true }))
   async updateFramework(
     @Param('frameworkId') frameworkId: string, 
-    @Body('framework') frameworkUpdates: any
+    @Body('framework') frameworkUpdates: Partial<Framework>
   ): Promise<void> {
     return this.frameworkService.updateFramework({
         frameworkId: frameworkId,
@@ -38,7 +40,6 @@ export class FrameworkController {
   @Get('/frameworks')
   @ApiOkResponse({ description: 'OK.' })
   @ApiBadRequestResponse({ description: 'Framework query invalid' })
-  @ApiBody({ })
   async getFrameworks(
     @Query() query: any
   ): Promise<Framework[]> {
@@ -48,11 +49,10 @@ export class FrameworkController {
   }
 
   @Get('/frameworks/:frameworkId')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiOkResponse({ description: 'OK.' })
+  @ApiBadRequestResponse({ description: 'The specified ID is not valid' })
+  @ApiForbiddenResponse({ description: 'You do not have access to the given framework' })
+  @ApiNotFoundResponse({ description: 'The specified framework was not found' })
   async getSingleFramework(
     @Param('frameworkId') frameworkId: string
   ): Promise<Framework> {
@@ -62,14 +62,14 @@ export class FrameworkController {
   }
 
   @Post('/frameworks/:frameworkId/guidelines')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiOkResponse({ description: 'Guideline created!' })
+  @ApiBadRequestResponse({ description: 'Guideline is not in the correct format' })
+  @ApiForbiddenResponse({ description: 'You do not have permission to access the specified framework' })
+  @ApiNotFoundResponse({ description: 'The specified framework does not exists' })
+  @ApiBody({ description: 'Body for a partial framework', type: GuidelineWriteDTO })
   async createGuideline(
     @Param('frameworkId') frameworkId: string, 
-    @Body('guideline') guideline: any
+    @Body('guideline') guideline: GuidelineWriteDTO
   ): Promise<void> {
         return this.frameworkService.createGuideline({
           frameworkId: frameworkId, 
@@ -127,7 +127,7 @@ export class FrameworkController {
         });
   }
 
-  @Get('/frameworks/:framework/guidelines')
+  @Get('/frameworks/:frameworkId/guidelines')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
@@ -142,11 +142,9 @@ export class FrameworkController {
   }
 
   @Get('/guidelines')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
+  @ApiOkResponse({ description: 'Everything is A ok' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
   async getAllGuidelines(
     @Query() query: any
   ): Promise<Guideline[]> {
