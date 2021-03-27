@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { query } from 'express';
 import { Model, Types } from 'mongoose';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
 import { Framework } from 'src/Models/framework.schema';
@@ -15,7 +16,7 @@ export class FrameworkService {
             framework: FrameworkWriteDTO
         }
     ): Promise<void> {
-        const framework = new this.frameworkModel({ ...args.framework, _id: new Types.ObjectId()});
+        const framework = new this.frameworkModel({ ...args.framework, status: 'unreleased', _id: new Types.ObjectId()});
         await framework.save();
         return framework._id;
     }
@@ -36,11 +37,27 @@ export class FrameworkService {
 
     async getFrameworks(
         args: {
-            query
+            query: any
         }
     ): Promise<Framework[]> {
+        const aggregation = [];
         // TODO: Build query
-        return await this.frameworkModel.find().exec();
+        if(args.query.text) {
+            aggregation.push({ $match: { $text: {$search: args.query.text}}},
+                { $sort: { score: { $meta: 'textScore' }}});
+        }
+        if(args.query.year) {
+            aggregation.push({ $match: { year: args.query.year }});
+        }
+        if(args.query.status) {
+            aggregation.push({ $match: { status: args.query.status}});
+        }
+        if(args.query.level) {
+            args.query.level = [args.query.level];
+            console.log(args.query.level)
+            aggregation.push({ $match: { levels: { $in: args.query.level}}});
+        }
+        return await this.frameworkModel.aggregate(aggregation).exec();
     }
 
     async getSingleFramework(
@@ -108,7 +125,18 @@ export class FrameworkService {
             query: any
         }
     ): Promise<Guideline []> {
-        //TODO Build query
+        if(args.query.year) {
+
+        }
+        if(args.query.level) {
+
+        }
+        if(args.query.status) {
+
+        }
+        if(args.query.text) {
+            
+        }
         return await this.guidelineModel.find().exec();
     }
     

@@ -47,4 +47,16 @@ export class FrameworkWriteDTO {
     @IsString()
     year: string;
 
+
+    @ApiProperty({
+        name: 'levels',
+        description: 'Can either be high, K12, post-grad, or professional',
+        required: true,
+        type: [String],
+        isArray: false, 
+    })
+    @IsDefined()
+    @IsNotEmpty()
+    levels: string [];
+
 }
