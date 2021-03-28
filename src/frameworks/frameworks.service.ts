@@ -93,9 +93,13 @@ export class FrameworkService {
             guideline: any
         }
     ): Promise<void> {
+        const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
         const guideline = new this.guidelineModel(
             { 
-                frameworkId: args.frameworkId, 
+                frameworkId: args.frameworkId,
+                status: 'unreleased',
+                year: framework.year,
+                author: framework.author,
                 ...args.guideline,
                  _id: new Types.ObjectId()
             }
@@ -188,9 +192,15 @@ export class FrameworkService {
     async validateGuidelineUpdate(args) {
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
         if (framework) {
-            const updates = args.guideline;
-            if(updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
-                throw new HttpException('Guideline moving to invalid status', HttpStatus.BAD_REQUEST);
+            const guideline = await this.getSingleGuideline({ frameworkId: args.frameworkId, guidelineId: args.guideline._id});
+            if (guideline) {
+                const updates = args.guideline;
+                if(updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
+                    throw new HttpException('Guideline moving to invalid status', HttpStatus.BAD_REQUEST);
+                }
+                if (updates.year && (updates.year < '1998' && updates.year > '2030')) {
+                    throw new HttpException('Guideline must have a year between 1998 and 2030', HttpStatus.BAD_REQUEST);
+                }
             }
         } else {
             throw new HttpException('Framework not found!', HttpStatus.NOT_FOUND);
