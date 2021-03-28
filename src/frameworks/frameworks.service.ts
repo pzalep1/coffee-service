@@ -16,7 +16,13 @@ export class FrameworkService {
             framework: FrameworkWriteDTO
         }
     ): Promise<void> {
-        const framework = new this.frameworkModel({ ...args.framework, status: 'unreleased', _id: new Types.ObjectId()});
+        const framework = new this.frameworkModel(
+            { 
+                ...args.framework, 
+                status: 'unreleased', 
+                _id: new Types.ObjectId()
+            }
+        );
         await framework.save();
         return framework._id;
     }
@@ -27,11 +33,15 @@ export class FrameworkService {
             frameworkUpdates: any
         }
     ): Promise<void> {
-        const updated = await this.frameworkModel.updateOne({ _id: new Types.ObjectId(args.frameworkId) }, { $set: { ...args.frameworkUpdates, lastUpdated: Date.now() }});
+        await this.validateFrameworkUpdates(args);
+        const updated = await this.frameworkModel.updateOne(
+            { _id: new Types.ObjectId(args.frameworkId) }, 
+            { $set: { ...args.frameworkUpdates, lastUpdated: Date.now() }}
+        );
         if(updated.nModified > 0) {
             return;
         } else {
-            throw new HttpException('Framework not found!', HttpStatus.NOT_FOUND);
+            throw new HttpException('Guideline not found!', HttpStatus.NOT_FOUND);
         }
     }
 
@@ -41,7 +51,6 @@ export class FrameworkService {
         }
     ): Promise<Framework[]> {
         const aggregation = [];
-        // TODO: Build query
         if(args.query.text) {
             aggregation.push({ $match: { $text: {$search: args.query.text}}},
                 { $sort: { score: { $meta: 'textScore' }}});
@@ -54,10 +63,13 @@ export class FrameworkService {
         }
         if(args.query.level) {
             args.query.level = [args.query.level];
-            console.log(args.query.level)
             aggregation.push({ $match: { levels: { $in: args.query.level}}});
         }
-        return await this.frameworkModel.aggregate(aggregation).exec();
+        if(aggregation.length > 0) {
+            return await this.frameworkModel.aggregate(aggregation).exec();
+        } else {
+            return await this.frameworkModel.find().exec();
+        }
     }
 
     async getSingleFramework(
@@ -65,7 +77,9 @@ export class FrameworkService {
             frameworkId: string,
         }
     ): Promise<Framework> {
-        const framework = await this.frameworkModel.findOne({_id: args.frameworkId});
+        const framework = await this.frameworkModel.findOne(
+            { _id: args.frameworkId }
+        );
         if(framework) {
             return framework;
         } else {
@@ -79,7 +93,13 @@ export class FrameworkService {
             guideline: any
         }
     ): Promise<void> {
-        const guideline = new this.guidelineModel({ frameworkId: args.frameworkId, name: args.guideline.name, guidelineText: args.guideline.guidelineText, _id: new Types.ObjectId()});
+        const guideline = new this.guidelineModel(
+            { 
+                frameworkId: args.frameworkId, 
+                ...args.guideline,
+                 _id: new Types.ObjectId()
+            }
+        );
         await guideline.save();
         return guideline._id;
     }
@@ -91,7 +111,11 @@ export class FrameworkService {
             guideline: any,
         }
     ): Promise<void> {
-        await this.guidelineModel.updateOne({ _id: new Types.ObjectId(args.guidelineId) }, { $set: { ...args.guideline, lastUpdated: Date.now() }}).exec();;
+        await this.validateGuidelineUpdate(args);
+        await this.guidelineModel.updateOne(
+            { _id: new Types.ObjectId(args.guidelineId) }, 
+            { $set: { ...args.guideline, lastUpdated: Date.now() }}
+        ).exec();
     }
 
     async deleteGuideline(
@@ -100,7 +124,9 @@ export class FrameworkService {
             guidelineId: string,
         }
     ): Promise<void> {
-        await this.guidelineModel.deleteOne({_id: new Types.ObjectId(args.guidelineId)}).exec();;
+        await this.guidelineModel.deleteOne(
+            {_id: new Types.ObjectId(args.guidelineId)}
+        ).exec();;
     }
 
     async getSingleGuideline(
@@ -109,7 +135,9 @@ export class FrameworkService {
             guidelineId: string,
         }
     ): Promise<Guideline> {
-        return await this.guidelineModel.findOne({_id: new Types.ObjectId(args.guidelineId)}).exec();;
+        return await this.guidelineModel.findOne(
+            {_id: new Types.ObjectId(args.guidelineId)}
+        ).exec();;
     }
 
     async getGuidelinesForFramework(
@@ -117,7 +145,9 @@ export class FrameworkService {
             frameworkId: string,
         }
     ): Promise<Guideline[]>{
-        return await this.guidelineModel.find({frameworkId: args.frameworkId}).exec();
+        return await this.guidelineModel.find(
+            {frameworkId: args.frameworkId}
+        ).exec();
     }
 
     async getAllGuidelines(
@@ -140,5 +170,31 @@ export class FrameworkService {
         return await this.guidelineModel.find().exec();
     }
     
+    async validateFrameworkUpdates(args) {
+        const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
+        if (framework) {
+            const updates = args.frameworkUpdates;
+            if (updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
+                throw new HttpException('Framework moving to invalid status', HttpStatus.BAD_REQUEST);
+            }
+            if (updates.year && (updates.year < '1998' && updates.year > '2030')) {
+                throw new HttpException('Framework must have a year between 1998 and 2030', HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            throw new HttpException('Framework not found!', HttpStatus.NOT_FOUND);
+        }
+    }
+
+    async validateGuidelineUpdate(args) {
+        const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
+        if (framework) {
+            const updates = args.guideline;
+            if(updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
+                throw new HttpException('Guideline moving to invalid status', HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            throw new HttpException('Framework not found!', HttpStatus.NOT_FOUND);
+        }
+    }
  
 }
