@@ -13,6 +13,8 @@ export const GuidelineSchema = new Schema({
     collection: 'guidelines'
 });
 
+GuidelineSchema.index({'$**': 'text'});
+
 export interface Guideline {
     _id: string,
     frameworkName: string,

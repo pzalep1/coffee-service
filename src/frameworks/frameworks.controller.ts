@@ -64,9 +64,9 @@ export class FrameworkController {
   @Post('/frameworks/:frameworkId/guidelines')
   @ApiOkResponse({ description: 'Guideline created!' })
   @ApiBadRequestResponse({ description: 'Guideline is not in the correct format' })
-  @ApiForbiddenResponse({ description: 'You do not have permission to access the specified framework' })
-  @ApiNotFoundResponse({ description: 'The specified framework does not exists' })
-  @ApiBody({ description: 'Body for a partial framework', type: GuidelineWriteDTO })
+  @ApiForbiddenResponse({ description: 'You do not have permission to create a guideline' })
+  @ApiNotFoundResponse({ description: 'The specified framework does not exist' })
+  @ApiBody({ description: 'Body for a Guideline', type: GuidelineWriteDTO })
   async createGuideline(
     @Param('frameworkId') frameworkId: string, 
     @Body('guideline') guideline: GuidelineWriteDTO
@@ -78,11 +78,11 @@ export class FrameworkController {
   }
 
   @Patch('/frameworks/:frameworkId/guidelines/:guidelineId')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiOkResponse({ description: 'OK.' })
+  @ApiBadRequestResponse({ description: 'Guideline is not in correct format' })
+  @ApiForbiddenResponse({ description: 'You do not have permission to update this guideline' })
+  @ApiNotFoundResponse({ description: 'The specified framework or guideline does not exist' })
+  @ApiBody({ description: 'Body for a Guideline', type: GuidelineWriteDTO })
   async updateGuideline(
     @Param('frameworkId') frameworkId: string,
     @Param('guidelineId') guidelineId: string,
@@ -96,11 +96,10 @@ export class FrameworkController {
   }
 
   @Delete('/frameworks/:frameworkId/guidelines/:guidelineId')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiOkResponse({ description: 'Deleted successfully.' })
+  @ApiBadRequestResponse({ description: 'Mongo id is not valid' })
+  @ApiForbiddenResponse({ description: 'You are not authorized to delete this guideline.' })
+  @ApiNotFoundResponse({ description: 'The specified guideline could not be found' })
   async deleteGuideline(
     @Param('frameworkId') frameworkId: string, 
     @Param('guidelineId') guidelineId: string
@@ -112,11 +111,10 @@ export class FrameworkController {
   }
 
   @Get('/frameworks/:framework/guidelines/:guidelineId')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiOkResponse({ description: 'OK.' })
+  @ApiBadRequestResponse({ description: 'FrameworkId or guidelineId is not valid' })
+  @ApiForbiddenResponse({ description: 'You are not authorized to see this guideline' })
+  @ApiNotFoundResponse({ description: 'The specified guideline could not be found' })
   async getSingleGuideline(
     @Param('frameworkId') frameworkId: string, 
     @Param('guidelineId') guidelineId: string
@@ -129,10 +127,9 @@ export class FrameworkController {
 
   @Get('/frameworks/:frameworkId/guidelines')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBadRequestResponse({ description: 'The frameworkId is not valid' })
+  @ApiForbiddenResponse({ description: 'You are not authorized to view the guidelines for the framework' })
+  @ApiNotFoundResponse({ description: 'The given framework was not found' })
   async getGuidelinesForFramework(
     @Param('frameworkId') frameworkId: string
   ): Promise<Guideline[]> {
@@ -143,8 +140,7 @@ export class FrameworkController {
 
   @Get('/guidelines')
   @ApiOkResponse({ description: 'Everything is A ok' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
+  @ApiBadRequestResponse({ description: 'The query is not valid.' })
   async getAllGuidelines(
     @Query() query: any
   ): Promise<Guideline[]> {
