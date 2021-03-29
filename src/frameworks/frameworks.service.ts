@@ -131,7 +131,7 @@ export class FrameworkService {
         await this.validateGuidelineUpdate(args);
         let update = args.guideline;
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
-        console.log(args.guideline._doc);
+        
         if(args.guideline._doc && (framework.status !== args.guideline._doc.status)) {
             args.guideline._doc.status = framework.status;
             update = args.guideline._doc;
