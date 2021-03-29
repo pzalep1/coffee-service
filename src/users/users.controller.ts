@@ -1,11 +1,29 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+
 import { User } from 'src/Models/user.schema';
 import { UserService } from './users.service';
+import { LocalAuthGuard } from '../auth/local-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthService } from '../auth/auth.service';
+import { Role, Roles } from '../auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post('/users')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
@@ -13,21 +31,23 @@ export class UserController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async register(@Body('user') IUser: User): Promise<string> {
-    const token = await this.userService.register(IUser);
+  async register(@Body('user') user: any): Promise<string> {
+    const token = await this.userService.register(user);
     return token;
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('/users/tokens')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  login(): string {
-      return 'logged in!'
+  async login(@Request() req): Promise<any> {
+    return await this.authService.login(req.user);
   }
 
+  // We should filter this if the user wants to see all the things
   @Get('/users')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
@@ -35,9 +55,11 @@ export class UserController {
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
   async getAllUsers(): Promise<User[]> {
-      return await this.userService.getUsers();
+    return await this.userService.getUsers();
   }
-  
+
+  // Used for like profile
+  @UseGuards(JwtAuthGuard)
   @Get('/user/:userId')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
@@ -48,7 +70,9 @@ export class UserController {
     return await this.userService.getSingleUser(userId);
   }
 
-
+  @Roles(Role.Admin)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('users/tokens')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
@@ -56,17 +80,22 @@ export class UserController {
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
   verifyToken(): string {
-      return 'working token!'
+    return 'working token!';
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/users/:userId/privileges')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  addPrivilege(@Param('userId') userId: string): string {
-    return userId;
+  async addPrivilege(
+    @Req() req: any,
+    @Body('privileges') privilegesToAdd: string[],
+  ): Promise<string> {
+    return await this.authService.addPrivilege(req.user, privilegesToAdd);
   }
-
 }
+
+
