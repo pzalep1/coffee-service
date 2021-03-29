@@ -46,12 +46,11 @@ export class FrameworkService {
         );
         if(updated.nModified > 0) {
             const guidelines = await this.getGuidelinesForFramework({ frameworkId: args.frameworkId });
-            console.log(guidelines);
             for (const guideline of guidelines) {
                 await this.updateGuideline({frameworkId: args.frameworkId, guidelineId: guideline._id, guideline})
             }
         } else {
-            throw new HttpException('Guideline not found!', HttpStatus.NOT_FOUND);
+            throw new HttpException('Could not update framework!', HttpStatus.BAD_REQUEST);
         }
     }
     /**
@@ -131,7 +130,8 @@ export class FrameworkService {
     ): Promise<void> {
         await this.validateGuidelineUpdate(args);
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
-        const update = {...framework, ...args.guideline};
+        const update = { status: framework.status, ...args.guideline._doc};
+        console.log(update);
         await this.guidelineModel.updateOne(
             { _id: new Types.ObjectId(args.guidelineId) }, 
             { $set: { ...update, lastUpdated: Date.now() }}
@@ -158,7 +158,6 @@ export class FrameworkService {
         const guideline = await this.guidelineModel.findOne(
             {_id: new Types.ObjectId(args.guidelineId)}
         ).exec();
-        console.log(args.guidelineId);
         if (guideline) {
             return guideline;
         } else {
@@ -212,7 +211,8 @@ export class FrameworkService {
         }
         if (framework) {
             const updates = args.frameworkUpdates;
-            if (updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
+
+            if (updates.status && (updates.status !== 'unreleased' && updates.status !== 'released')) {
                 throw new HttpException('Framework moving to invalid status', HttpStatus.BAD_REQUEST);
             }
             if (updates.year && (Number(updates.year) < 1998 || Number(updates.year) > 2030)) {
@@ -226,12 +226,10 @@ export class FrameworkService {
     async validateGuidelineUpdate(args) {
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
         if (framework) {
-            console.log(args);
             const guideline = await this.getSingleGuideline({ frameworkId: args.frameworkId, guidelineId: args.guidelineId});
             if (guideline) {
                 const updates = args.guideline;
-                console.log(updates.status);
-                if(updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
+                if(updates.status && (updates.status !== 'unreleased' && updates.status !== 'released')) {
                     throw new HttpException('Guideline moving to invalid status', HttpStatus.BAD_REQUEST);
                 }
                 if (updates.year && (Number(updates.year) < 1998 || Number(updates.year) > 2030)) {
