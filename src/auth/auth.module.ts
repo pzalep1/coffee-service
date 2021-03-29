@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserSchema } from '../Models/user.schema';
 import { jwtConstants } from './constants';
 import { MongooseModule } from '@nestjs/mongoose';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       signOptions: { expiresIn: '84000000s' },
     }),
   ],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

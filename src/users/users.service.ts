@@ -1,4 +1,10 @@
-import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { AuthService } from '../auth/auth.service';
 import * as bcrypt from 'bcrypt';
@@ -57,5 +63,9 @@ export class UserService {
 
   async getSingleUser(email: string): Promise<User> {
     return this.userModel.findOne({ email }).exec();
+  }
+
+  async updateSingleUser(email: string, roles: string[]) {
+    await this.userModel.updateOne({ email }, { roles }).exec();
   }
 }

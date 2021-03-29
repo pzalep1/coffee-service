@@ -8,6 +8,7 @@ import {
 import { User } from '../Models/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
+import { Role } from './role.enum';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -26,8 +27,10 @@ export class AuthService {
 
       if (isMatch) {
         console.log('Passwords Matched');
-        const result = { _id: foundUser._id, name: foundUser.name };
+        const result = { _id: foundUser._id, email: foundUser.email };
         return result;
+      } else {
+        console.log('Passwords Do not Match!');
       }
     }
     return null;
@@ -35,15 +38,21 @@ export class AuthService {
 
   async login(user: User): Promise<any> {
     // Check that the user has sent up the email and password
-    if (user && user.name !== undefined && user._id !== undefined) {
-      const payload = { name: user.name, sub: user._id };
+    if (user && user.email !== undefined && user._id !== undefined) {
+      const payload = { email: user.email, _id: user._id };
       return { access_token: this.jwtService.sign(payload) };
     }
   }
+
+  async addPrivilege(user: any, priviledgesToAdd: string[]): Promise<any> {
+    if (user && user.email !== undefined && user._id !== undefined) {
+      if (priviledgesToAdd !== undefined && priviledgesToAdd.length > 0) {
+        const foundUser = await this.userService.getSingleUser(user.email);
+        if (foundUser !== undefined) {
+          await this.userService.updateSingleUser(user.email, priviledgesToAdd);
+        }
+      }
+    }
+    return null;
+  }
 }
-
-// Authorization header
-// React app handles storing the token
-
-// Encoding token body with user object
-// Setup strategies for admin and regular user and authentication guard the routes
