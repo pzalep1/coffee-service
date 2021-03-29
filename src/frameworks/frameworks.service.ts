@@ -129,9 +129,13 @@ export class FrameworkService {
         }
     ): Promise<void> {
         await this.validateGuidelineUpdate(args);
+        let update = args.guideline;
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
-        const update = { status: framework.status, ...args.guideline._doc};
-        console.log(update);
+        console.log(args.guideline._doc);
+        if(args.guideline._doc && (framework.status !== args.guideline._doc.status)) {
+            args.guideline._doc.status = framework.status;
+            update = args.guideline._doc;
+        } 
         await this.guidelineModel.updateOne(
             { _id: new Types.ObjectId(args.guidelineId) }, 
             { $set: { ...update, lastUpdated: Date.now() }}
