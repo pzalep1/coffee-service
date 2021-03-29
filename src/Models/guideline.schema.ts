@@ -2,12 +2,13 @@ import { Schema, Types } from 'mongoose';
 
 export const GuidelineSchema = new Schema({
     _id: Types.ObjectId,
-    frameworkName: String,
+    frameworkId: String,
     name: String,
     guidelineText: String,
     status: String,
     year: String,
     author: String,
+    levels: [String],
 },
 {
     collection: 'guidelines'

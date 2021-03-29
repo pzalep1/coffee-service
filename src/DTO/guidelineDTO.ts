@@ -30,6 +30,6 @@ export class GuidelineWriteDTO {
     @IsNotEmpty()
     @IsString()
     @MaxLength(1000)
-    author: string;
+    guidelineText: string;
 
 }

@@ -67,6 +67,7 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: 'You do not have permission to create a guideline' })
   @ApiNotFoundResponse({ description: 'The specified framework does not exist' })
   @ApiBody({ description: 'Body for a Guideline', type: GuidelineWriteDTO })
+  @UsePipes(new ValidationPipe({ transform: true }))
   async createGuideline(
     @Param('frameworkId') frameworkId: string, 
     @Body('guideline') guideline: GuidelineWriteDTO
@@ -83,6 +84,7 @@ export class FrameworkController {
   @ApiForbiddenResponse({ description: 'You do not have permission to update this guideline' })
   @ApiNotFoundResponse({ description: 'The specified framework or guideline does not exist' })
   @ApiBody({ description: 'Body for a Guideline', type: GuidelineWriteDTO })
+  @UsePipes(new ValidationPipe({ transform: true }))
   async updateGuideline(
     @Param('frameworkId') frameworkId: string,
     @Param('guidelineId') guidelineId: string,

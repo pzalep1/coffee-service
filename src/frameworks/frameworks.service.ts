@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { query } from 'express';
 import { Model, Types } from 'mongoose';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
 import { Framework } from 'src/Models/framework.schema';
@@ -10,12 +9,16 @@ import { Guideline } from 'src/Models/guideline.schema';
 export class FrameworkService {
   
     constructor(@InjectModel('Framework') private frameworkModel: Model<any>, @InjectModel('Guideline') private guidelineModel: Model<any>) {}
-    
+    /**
+     * Creates a framework
+     * @param args { framework: FrameworkDTO }
+     */
     async createFramework(
         args: {
             framework: FrameworkWriteDTO
         }
     ): Promise<void> {
+        await this.validateFrameworkUpdates({frameworkUpdates: args.framework});
         const framework = new this.frameworkModel(
             { 
                 ...args.framework, 
@@ -26,7 +29,10 @@ export class FrameworkService {
         await framework.save();
         return framework._id;
     }
-
+    /**
+     * Updates Framework
+     * @param args 
+     */
     async updateFramework(
         args: {
             frameworkId: string,
@@ -39,12 +45,19 @@ export class FrameworkService {
             { $set: { ...args.frameworkUpdates, lastUpdated: Date.now() }}
         );
         if(updated.nModified > 0) {
-            return;
+            const guidelines = await this.getGuidelinesForFramework({ frameworkId: args.frameworkId });
+            console.log(guidelines);
+            for (const guideline of guidelines) {
+                await this.updateGuideline({frameworkId: args.frameworkId, guidelineId: guideline._id, guideline})
+            }
         } else {
             throw new HttpException('Guideline not found!', HttpStatus.NOT_FOUND);
         }
     }
-
+    /**
+     * Get Frameworks
+     * @param args 
+     */
     async getFrameworks(
         args: {
             query: any
@@ -100,6 +113,7 @@ export class FrameworkService {
                 status: 'unreleased',
                 year: framework.year,
                 author: framework.author,
+                levels: framework.levels,
                 ...args.guideline,
                  _id: new Types.ObjectId()
             }
@@ -116,9 +130,11 @@ export class FrameworkService {
         }
     ): Promise<void> {
         await this.validateGuidelineUpdate(args);
+        const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
+        const update = {...framework, ...args.guideline};
         await this.guidelineModel.updateOne(
             { _id: new Types.ObjectId(args.guidelineId) }, 
-            { $set: { ...args.guideline, lastUpdated: Date.now() }}
+            { $set: { ...update, lastUpdated: Date.now() }}
         ).exec();
     }
 
@@ -139,9 +155,15 @@ export class FrameworkService {
             guidelineId: string,
         }
     ): Promise<Guideline> {
-        return await this.guidelineModel.findOne(
+        const guideline = await this.guidelineModel.findOne(
             {_id: new Types.ObjectId(args.guidelineId)}
-        ).exec();;
+        ).exec();
+        console.log(args.guidelineId);
+        if (guideline) {
+            return guideline;
+        } else {
+            throw new HttpException('Guideline not found!', HttpStatus.NOT_FOUND);
+        }
     }
 
     async getGuidelinesForFramework(
@@ -159,29 +181,41 @@ export class FrameworkService {
             query: any
         }
     ): Promise<Guideline []> {
-        if(args.query.year) {
-
+        const aggregation = [];
+        if(args.query.text) {
+            aggregation.push({ $match: { $text: {$search: args.query.text}}},
+                { $sort: { score: { $meta: 'textScore' }}});
         }
-        if(args.query.level) {
-
+        if(args.query.year) {
+            aggregation.push({ $match: { year: args.query.year }});
         }
         if(args.query.status) {
-
+            aggregation.push({ $match: { status: args.query.status}});
         }
-        if(args.query.text) {
-            
+        if(args.query.level) {
+            args.query.level = [args.query.level];
+            aggregation.push({ $match: { levels: { $in: args.query.level}}});
         }
-        return await this.guidelineModel.find().exec();
+        if(aggregation.length > 0) {
+            return await this.guidelineModel.aggregate(aggregation).exec();
+        } else {
+            return await this.guidelineModel.find().exec();
+        }
     }
     
     async validateFrameworkUpdates(args) {
-        const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
+        let framework = undefined;
+        if(args.frameworkId) {
+            framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
+        } else {
+            framework = {};
+        }
         if (framework) {
             const updates = args.frameworkUpdates;
             if (updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
                 throw new HttpException('Framework moving to invalid status', HttpStatus.BAD_REQUEST);
             }
-            if (updates.year && (updates.year < '1998' && updates.year > '2030')) {
+            if (updates.year && (Number(updates.year) < 1998 || Number(updates.year) > 2030)) {
                 throw new HttpException('Framework must have a year between 1998 and 2030', HttpStatus.BAD_REQUEST);
             }
         } else {
@@ -192,13 +226,15 @@ export class FrameworkService {
     async validateGuidelineUpdate(args) {
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
         if (framework) {
-            const guideline = await this.getSingleGuideline({ frameworkId: args.frameworkId, guidelineId: args.guideline._id});
+            console.log(args);
+            const guideline = await this.getSingleGuideline({ frameworkId: args.frameworkId, guidelineId: args.guidelineId});
             if (guideline) {
                 const updates = args.guideline;
+                console.log(updates.status);
                 if(updates.status && (updates.status !== 'unreleased' || updates.status !== 'released')) {
                     throw new HttpException('Guideline moving to invalid status', HttpStatus.BAD_REQUEST);
                 }
-                if (updates.year && (updates.year < '1998' && updates.year > '2030')) {
+                if (updates.year && (Number(updates.year) < 1998 || Number(updates.year) > 2030)) {
                     throw new HttpException('Guideline must have a year between 1998 and 2030', HttpStatus.BAD_REQUEST);
                 }
             }

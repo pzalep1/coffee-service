@@ -50,7 +50,7 @@ export class FrameworkWriteDTO {
 
     @ApiProperty({
         name: 'levels',
-        description: 'Can either be high, K12, post-grad, or professional',
+        description: 'Can either be high, K12, college, post-grad, or professional',
         required: true,
         type: [String],
         isArray: false, 
