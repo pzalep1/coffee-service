@@ -1,4 +1,5 @@
 import { Schema, Types } from 'mongoose';
+import { Role } from '../auth/role.enum';
 
 export const UserSchema = new Schema({
     _id: Types.ObjectId,
@@ -6,6 +7,7 @@ export const UserSchema = new Schema({
     password: String,
     organization: String, 
     name: String,
+    roles: [String],
 },
 {
     collection: 'users'
@@ -17,4 +19,5 @@ export interface User {
     name: string,
     organization: string,
     password: string,
+    roles: Role[],
 }
