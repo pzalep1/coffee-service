@@ -36,15 +36,18 @@ export class UserController {
     return token;
   }
 
-  @UseGuards(LocalAuthGuard)
+  //@UseGuards(LocalAuthGuard)
   @Post('/users/tokens')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
+  // @ApiForbiddenResponse({ description: '' })
+  // @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
   async login(@Request() req): Promise<any> {
-    return await this.authService.login(req.user);
+    //console.log(req);
+    const data = await this.authService.login(req.body.user);
+    console.log(data);
+    return data;
   }
 
   // We should filter this if the user wants to see all the things

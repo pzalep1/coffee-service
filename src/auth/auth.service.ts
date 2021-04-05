@@ -38,7 +38,10 @@ export class AuthService {
 
   async login(user: User): Promise<any> {
     // Check that the user has sent up the email and password
-    if (user && user.email !== undefined && user._id !== undefined) {
+    //console.log(user);
+    console.log(user.email, user.password);
+    if (user.email != undefined && user.password != undefined) {
+      console.log("hit if statement", user);
       const payload = { email: user.email, _id: user._id };
       return { access_token: this.jwtService.sign(payload) };
     }
