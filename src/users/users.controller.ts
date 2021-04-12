@@ -1,4 +1,12 @@
-import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiBody,
+  ApiTags,
+  ApiOperation,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -17,7 +25,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { Role, Roles } from '../auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { UserWriteDTO } from 'src/DTO/userWriteDTO';
 
+@ApiTags('users')
 @Controller()
 export class UserController {
   constructor(
@@ -26,11 +36,12 @@ export class UserController {
   ) {}
 
   @Post('/users')
+  @ApiOperation({summary: "Register User"})
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({ description: 'User Registration', type: UserWriteDTO })
   async register(@Body('user') user: any): Promise<string> {
     const token = await this.userService.register(user);
     return token;
@@ -38,22 +49,24 @@ export class UserController {
 
   @UseGuards(LocalAuthGuard)
   @Post('/users/tokens')
+  @ApiOperation({summary: "Login"})
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
+  @ApiForbiddenResponse({ description: 'User Login' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({})
   async login(@Request() req): Promise<any> {
     return await this.authService.login(req.user);
   }
 
   // We should filter this if the user wants to see all the things
   @Get('/users')
+  @ApiOperation({summary: "List all User Resources"})
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({})
   async getAllUsers(): Promise<User[]> {
     return await this.userService.getUsers();
   }
@@ -61,11 +74,12 @@ export class UserController {
   // Used for like profile
   @UseGuards(JwtAuthGuard)
   @Get('/user/:userId')
+  @ApiOperation({summary: "Get Information about a User"})
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({})
   async getUser(@Param('userId') userId: string): Promise<User> {
     return await this.userService.getSingleUser(userId);
   }
@@ -74,28 +88,32 @@ export class UserController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('users/tokens')
+  @ApiOperation({summary: "Not sure what this does..."})
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({})
   verifyToken(): string {
     return 'working token!';
   }
 
+  @Roles(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @Post('/users/:userId/privileges')
+  @ApiOperation({summary: "Admin can add a privilege to a user"})
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({ description: 'Add various privileges to user'})
   async addPrivilege(
-    @Req() req: any,
+    @Param('email') userToAddPrivilegeEmail: string,
     @Body('privileges') privilegesToAdd: string[],
   ): Promise<string> {
-    return await this.authService.addPrivilege(req.user, privilegesToAdd);
+    return await this.authService.addPrivilege(
+      userToAddPrivilegeEmail,
+      privilegesToAdd,
+    );
   }
 }
-
-

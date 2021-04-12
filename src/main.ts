@@ -12,6 +12,7 @@ async function bootstrap() {
     .setDescription('The coffee-service API description')
     .setVersion('1.0')
     .addTag('frameworks')
+    .addTag('users')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

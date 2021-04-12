@@ -19,9 +19,15 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async validateUser(user: string, pass: string): Promise<any> {
-    const foundUser = await this.userService.getSingleUser(user);
-    if (user) {
+  /**
+   * Strategy used to validate username and password inside local strategy used for local auth guard (login checks).
+   * @param email - Email of user trying to login
+   * @param pass - Password user trying to login inputs
+   * @returns Returns an object with user information (id and email) if the login is sucessful, else returns null.
+   */
+  async validateUser(email: string, pass: string): Promise<any> {
+    const foundUser = await this.userService.getSingleUser(email);
+    if (foundUser) {
       await bcrypt.genSalt(10);
       const isMatch = await bcrypt.compare(pass, foundUser.password);
 
@@ -44,12 +50,20 @@ export class AuthService {
     }
   }
 
-  async addPrivilege(user: any, priviledgesToAdd: string[]): Promise<any> {
-    if (user && user.email !== undefined && user._id !== undefined) {
-      if (priviledgesToAdd !== undefined && priviledgesToAdd.length > 0) {
-        const foundUser = await this.userService.getSingleUser(user.email);
+  async addPrivilege(
+    userToAddPrivilegeEmail: string,
+    privilegesToAdd: string[],
+  ): Promise<any> {
+    if (userToAddPrivilegeEmail !== undefined) {
+      if (privilegesToAdd !== undefined && privilegesToAdd.length > 0) {
+        const foundUser = await this.userService.getSingleUser(
+          userToAddPrivilegeEmail,
+        );
         if (foundUser !== undefined) {
-          await this.userService.updateSingleUser(user.email, priviledgesToAdd);
+          await this.userService.updateSingleUser(
+            userToAddPrivilegeEmail,
+            privilegesToAdd,
+          );
         }
       }
     }
