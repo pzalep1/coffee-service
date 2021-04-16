@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
-import { Framework } from 'src/Models/framework.schema';
-import { Guideline } from 'src/Models/guideline.schema';
+import { Framework } from '../Models/framework.schema';
+import { Guideline } from '../Models/guideline.schema';
 
 @Injectable()
 export class FrameworkService {

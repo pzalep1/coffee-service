@@ -1,27 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppService } from './../src/app.service';
-import { AppController } from './../src/app.controller';
+import { FrameworkController } from './../src/frameworks/frameworks.controller';
+import { FrameworkService } from './../src/frameworks/frameworks.service';
 
-describe('AppController (e2e)', () => {
+describe('Framework Controller (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [],
-      controllers: [AppController],
-      providers: [AppService],
+      controllers: [FrameworkController],
+      providers: [FrameworkService],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
-  it('/ (GET)', async () => {
+  it('/users (GET)', async () => {
     return await request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect(["wow","yee"]);
+      .get('/users')
+      .expect(200);
   });
 });

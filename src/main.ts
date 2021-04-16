@@ -9,7 +9,7 @@ async function bootstrap() {
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Coffee-Service API')
-    .setDescription('The coffee-service API description')
+    .setDescription('The API for the curricular-coffee system')
     .setVersion('1.0')
     .addTag('frameworks')
     .build();

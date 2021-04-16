@@ -8,7 +8,6 @@ import {
 import { User } from '../Models/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
-import { Role } from './role.enum';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
