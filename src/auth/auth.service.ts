@@ -50,20 +50,19 @@ export class AuthService {
     }
   }
 
-  async addPrivilege(
-    userToAddPrivilegeEmail: string,
-    privilegesToAdd: string[],
-  ): Promise<any> {
-    if (userToAddPrivilegeEmail !== undefined) {
-      if (privilegesToAdd !== undefined && privilegesToAdd.length > 0) {
-        const foundUser = await this.userService.getSingleUser(
-          userToAddPrivilegeEmail,
-        );
+  async addPrivilege(user: any, priviledgesToAdd: string[]): Promise<any> {
+    if (user && user.email !== undefined && user._id !== undefined) {
+      if (priviledgesToAdd !== undefined && priviledgesToAdd.length > 0) {
+        const foundUser = await this.userService.getSingleUser(user.email);
         if (foundUser !== undefined) {
-          await this.userService.updateSingleUser(
-            userToAddPrivilegeEmail,
-            privilegesToAdd,
+          priviledgesToAdd = priviledgesToAdd.filter(x => Object.values<string>(Role).includes(x)).filter(
+            x => !foundUser.roles.includes(Role[x]),
           );
+          console.log(priviledgesToAdd);
+          priviledgesToAdd = priviledgesToAdd.concat(foundUser.roles);
+
+          await this.userService.updateSingleUser(user.email, priviledgesToAdd);
+          console.log('Added privileges!');
         }
       }
     }

@@ -13,7 +13,7 @@ export class UserWriteDTO {
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  name: string;
+  email: string;
 
   @ApiProperty({
     name: 'password',
@@ -44,7 +44,7 @@ export class UserWriteDTO {
   @IsNotEmpty()
   @IsString()
   @MaxLength(1000)
-  author: string;
+  organization: string;
 
   @ApiProperty({
     name: 'name',
@@ -58,5 +58,5 @@ export class UserWriteDTO {
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  year: string;
+  name: string;
 }
