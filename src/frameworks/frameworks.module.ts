@@ -4,7 +4,7 @@ import { FrameworkService } from './frameworks.service';
 import { FrameworkSchema } from '../Models/framework.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { GuidelineSchema } from 'src/Models/guideline.schema';
+import { GuidelineSchema } from '../Models/guideline.schema';
 
 @Module({
   imports: [

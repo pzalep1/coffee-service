@@ -17,7 +17,7 @@ export class FrameworkService {
         args: {
             framework: FrameworkWriteDTO
         }
-    ): Promise<void> {
+    ): Promise<string> {
         await this.validateFrameworkUpdates({frameworkUpdates: args.framework});
         const framework = new this.frameworkModel(
             { 
