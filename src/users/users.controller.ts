@@ -16,7 +16,7 @@ import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { Role, Roles } from '../auth/roles.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller()
 export class UserController {
