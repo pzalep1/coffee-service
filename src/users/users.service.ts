@@ -10,6 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../Models/user.schema';
+import { UserWriteDTO } from 'src/DTO/userWriteDTO';
 
 @Injectable()
 export class UserService {
@@ -19,9 +20,9 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  async register(user: User): Promise<string> {
+  async register(user: UserWriteDTO): Promise<string> {
     // Check that user is valid
-    console.log(user.email);
+    console.log(user);
     if (
       user &&
       user.email !== undefined &&
@@ -43,8 +44,9 @@ export class UserService {
           ...user,
           _id: new Types.ObjectId(),
         });
+
         await userDoc.save();
-        this.authService.login(user);
+        return this.authService.login(userDoc);
       } else {
         throw new HttpException('Email already in use!', HttpStatus.CONFLICT);
       }
@@ -54,7 +56,6 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return 'yee';
   }
 
   async getUsers(): Promise<User[]> {
