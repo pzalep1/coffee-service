@@ -104,7 +104,7 @@ export class FrameworkService {
             frameworkId: string,
             guideline: any
         }
-    ): Promise<void> {
+    ): Promise<string> {
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
         const guideline = new this.guidelineModel(
             { 
