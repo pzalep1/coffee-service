@@ -41,8 +41,7 @@ export class AuthService {
     // Check that the user has sent up the email and password
     if (validUser) {
       const payload = { email: user.email, _id: user._id, name: user.name };
-      console.log(process.env.SECRET_KEY)
-      return { access_token: this.jwtService.sign(payload) };
+      return { access_token: this.jwtService.sign(payload, { secret: process.env.SECRET_KEY }) };
     }
   }
 

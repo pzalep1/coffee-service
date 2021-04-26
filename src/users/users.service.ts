@@ -62,6 +62,10 @@ export class UserService {
     return this.userModel.findOne({ email }).exec();
   }
 
+  async getUserById(id: string): Promise<User> {
+    return this.userModel.findOne({ _id: id }).select("-password").exec();
+  }
+
   async updateSingleUser(email: string, roles: string[]) {
     await this.userModel.updateOne({ email }, { roles }).exec();
   }

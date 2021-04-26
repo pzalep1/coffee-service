@@ -53,7 +53,8 @@ export class UserController {
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
   async getAllUsers(): Promise<User[]> {
-    return await this.userService.getUsers();
+    const users = await this.userService.getUsers();
+    return users;
   }
 
   // Used for profiles
@@ -64,8 +65,9 @@ export class UserController {
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async getUser(@Param('userId') userId: string): Promise<User> {
-    return await this.userService.getSingleUser(userId);
+  async getUser(@Param('userId') userId: string): Promise<any> {
+    let userValid = await this.userService.getUserById(userId);
+    return {_id: userValid._id, name: userValid.name, email: userValid.email, roles: userValid.roles, organization: userValid.organization};
   }
 
   @Roles(Role.Admin)
