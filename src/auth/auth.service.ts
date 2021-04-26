@@ -9,6 +9,7 @@ import { User } from '../Models/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
+import { Role } from './role.enum';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +19,14 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async validateUser(user: string, pass: string): Promise<any> {
-    const foundUser = await this.userService.getSingleUser(user);
-
+  /**
+   * Strategy used to validate username and password inside local strategy used for local auth guard (login checks).
+   * @param email - Email of user trying to login
+   * @param pass - Password user trying to login inputs
+   * @returns Returns an object with user information (id and email) if the login is sucessful, else returns null.
+   */
+  async validateUser(email: string, pass: string): Promise<any> {
+    const foundUser = await this.userService.getSingleUser(email);
     if (foundUser) {
       await bcrypt.genSalt(10);
       const isMatch = await bcrypt.compare(pass, foundUser.password);
@@ -50,6 +56,11 @@ export class AuthService {
       if (priviledgesToAdd !== undefined && priviledgesToAdd.length > 0) {
         const foundUser = await this.userService.getSingleUser(user.email);
         if (foundUser !== undefined) {
+          priviledgesToAdd = priviledgesToAdd.filter(x => Object.values<string>(Role).includes(x)).filter(
+            x => !foundUser.roles.includes(Role[x]),
+          );
+          priviledgesToAdd = priviledgesToAdd.concat(foundUser.roles);
+
           await this.userService.updateSingleUser(user.email, priviledgesToAdd);
         }
       }

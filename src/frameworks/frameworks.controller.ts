@@ -1,10 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
+import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody, ApiTags } from '@nestjs/swagger';
 import { FrameworkWriteDTO } from '../DTO/frameworkDTO';
 import { GuidelineWriteDTO } from '../DTO/guidelineDTO';
 import { Framework } from '../Models/framework.schema';
 import { Guideline } from '../Models/guideline.schema';
 import { FrameworkService } from './frameworks.service';
+
+@ApiTags('frameworks')
 @Controller()
 export class FrameworkController {
   constructor(private readonly frameworkService: FrameworkService) {}

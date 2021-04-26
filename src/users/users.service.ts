@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../Models/user.schema';
-import { Token } from 'graphql';
+import { UserWriteDTO } from '../DTO/userWriteDTO';
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,7 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  async register(user: User): Promise<any> {
+  async register(user: UserWriteDTO): Promise<any> {
     // Check that user is valid
     if (
       user &&
@@ -42,6 +42,7 @@ export class UserService {
           ...user,
           _id: new Types.ObjectId(),
         });
+
         await userDoc.save();
       } else {
         throw new HttpException('Email already in use!', HttpStatus.CONFLICT);

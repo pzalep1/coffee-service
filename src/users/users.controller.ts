@@ -1,4 +1,12 @@
-import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiBody,
+  ApiTags,
+  ApiOperation,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -8,6 +16,8 @@ import {
   Request,
   Req,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 
 import { User } from 'src/Models/user.schema';
@@ -16,7 +26,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { Role, Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { UserWriteDTO } from '../DTO/userWriteDTO';
 
+@ApiTags('users')
 @Controller()
 export class UserController {
   constructor(
@@ -25,20 +37,23 @@ export class UserController {
   ) {}
 
   @Post('/users')
+  @ApiOperation({ summary: 'Register User' })
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
-  async register(@Body('user') user: any): Promise<string> {
+  @ApiBody({ description: 'User Registration', type: UserWriteDTO })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async register(@Body('user') user: UserWriteDTO): Promise<string> {
     const token = await this.userService.register(user);
     return token;
   }
 
   @Post('/users/tokens')
+  @ApiOperation({ summary: 'Login' })
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
+  @ApiForbiddenResponse({ description: 'User Login' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
   async login(@Body('user') user: any): Promise<any> {
@@ -47,11 +62,12 @@ export class UserController {
 
   // We should filter this if the user wants to see all the things
   @Get('/users')
+  @ApiOperation({ summary: 'List all User Resources' })
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({})
   async getAllUsers(): Promise<User[]> {
     const users = await this.userService.getUsers();
     return users;
@@ -70,26 +86,30 @@ export class UserController {
     return {_id: userValid._id, name: userValid.name, email: userValid.email, roles: userValid.roles, organization: userValid.organization};
   }
 
+  // Token refresh route
+  @UseGuards(JwtAuthGuard)
+  @Get('users/tokens')
+  @ApiOperation({ summary: 'Not sure what this does...' })
+  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
+  @ApiBadRequestResponse({ description: 'Swagger not working right' })
+  @ApiForbiddenResponse({ description: '' })
+  @ApiNotFoundResponse({ description: '' })
+  @ApiBody({})
+  async verifyToken(@Request() req): Promise<any> {
+    return req.user;
+  }
+
+  // TODO: Use query parameter insted of modifying self.
   @Roles(Role.Admin)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get('users/tokens')
-  @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
-  @ApiBadRequestResponse({ description: 'Swagger not working right' })
-  @ApiForbiddenResponse({ description: '' })
-  @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
-  verifyToken(): string {
-    return 'working token!';
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post('/users/:userId/privileges')
+  @ApiOperation({ summary: 'Admin can add a privilege to a user' })
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({ })
+  @ApiBody({ description: 'Add various privileges to user' })
   async addPrivilege(
     @Req() req: any,
     @Body('privileges') privilegesToAdd: string[],
@@ -97,5 +117,3 @@ export class UserController {
     return await this.authService.addPrivilege(req.user, privilegesToAdd);
   }
 }
-
-
