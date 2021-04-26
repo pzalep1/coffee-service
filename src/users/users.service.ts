@@ -10,6 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../Models/user.schema';
+import { Token } from 'graphql';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,6 @@ export class UserService {
 
   async register(user: User): Promise<string> {
     // Check that user is valid
-    console.log(user.email);
     if (
       user &&
       user.email !== undefined &&
@@ -32,7 +32,6 @@ export class UserService {
       // Check that user email is not already in use
       const email = user.email;
       const found = await this.userModel.findOne({ email }).exec();
-      console.log(found);
       if (!found) {
         // Salt password
         const saltRounds = 10;
@@ -44,7 +43,8 @@ export class UserService {
           _id: new Types.ObjectId(),
         });
         await userDoc.save();
-        this.authService.login(user);
+        const token = await this.authService.login(user);
+        return token;
       } else {
         throw new HttpException('Email already in use!', HttpStatus.CONFLICT);
       }
@@ -54,7 +54,6 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return 'yee';
   }
 
   async getUsers(): Promise<User[]> {

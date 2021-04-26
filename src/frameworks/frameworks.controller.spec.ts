@@ -8,9 +8,9 @@ import {
 } from '../../test/MongooseTestModule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FrameworkWriteDTO } from '../DTO/frameworkDTO';
-import { Framework, FrameworkSchema } from '../Models/framework.schema';
-import { Guideline, GuidelineSchema } from '../Models/guideline.schema';
-import { Model, Types } from 'mongoose';
+import { FrameworkSchema } from '../Models/framework.schema';
+import { GuidelineSchema } from '../Models/guideline.schema';
+import { Types } from 'mongoose';
 
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
@@ -20,7 +20,6 @@ import { GuidelineWriteDTO } from '../DTO/guidelineDTO';
 describe('Frameworks', () => {
   let frameworkController: FrameworkController;
   let frameworkService: FrameworkService;
-  let frameworkModel: Model<any>;
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -56,12 +55,6 @@ describe('Frameworks', () => {
 
   it('should be defined', () => {
     expect(frameworkController).toBeDefined();
-  });
-
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(2 + 2).toEqual(4);
-    });
   });
 
   function bIsMatchingFramework(
@@ -130,7 +123,7 @@ describe('Frameworks', () => {
     author = 'Zi',
     year = '2020', // Frameworks must be between 1998 and 2020
     levels = ['college'],
-  ) {
+  ): Promise<string> {
     let mockFrameworkDTO = createMockFrameworkDTO(name, author, year, levels);
 
     const newFrameworkId = await frameworkService.createFramework({
@@ -140,7 +133,7 @@ describe('Frameworks', () => {
     return newFrameworkId;
   }
 
-  async function createMockFrameworkFromDTO(DTO: FrameworkWriteDTO) {
+  async function createMockFrameworkFromDTO(DTO: FrameworkWriteDTO): Promise<string> {
     let mockFrameworkDTO = createMockFrameworkDTO(
       DTO.name,
       DTO.author,
@@ -158,7 +151,7 @@ describe('Frameworks', () => {
   async function createMockGuidelineFromDTO(
     frameworkId: string,
     DTO: GuidelineWriteDTO,
-  ) {
+  ): Promise<string> {
     let mockGuidelineDTO = createMockGuidelineDTO(DTO.name, DTO.guidelineText);
 
     const newGuidelineId = await frameworkService.createGuideline({
@@ -172,7 +165,6 @@ describe('Frameworks', () => {
   // Since several tests rely on this, we'll test this as well.
   it('createframework', async () => {
     const newFrameworkId = await createMockFramework();
-    const newFrameworkId2 = await createMockFramework();
 
     expect(newFrameworkId).toBeTruthy();
 
@@ -201,9 +193,6 @@ describe('Frameworks', () => {
         bIsMatchingFramework(res);
       });
 
-    const newFrameworkId2 = await createMockFramework('Test', 'Zi');
-    const newFrameworkId3 = await createMockFramework('Test2', 'Zi');
-
     await request(app.getHttpServer())
       .get('/frameworks')
       .query({ name: 'Zi' })
@@ -221,18 +210,10 @@ describe('Frameworks', () => {
       .set('Accept', 'application/json')
       .expect(201);
 
-    console.log(successfulRes.body);
     let x = await frameworkService.getSingleFramework({
       frameworkId: successfulRes.body,
     });
     expect(x).toBeTruthy();
-
-    // In progress
-    // const duplicateRes = await request(app.getHttpServer())
-    //   .post('/frameworks')
-    //   .send({ framework: createMockFrameworkDTO() })
-    //   .set('Accept', 'application/json')
-    //   .expect(409);
 
     const invalidValueRes = await request(app.getHttpServer())
       .post('/frameworks')
@@ -258,7 +239,6 @@ describe('Frameworks', () => {
       .set('Accept', 'application/json')
       .expect(200);
 
-    console.log(successfulRes.body);
     let x = await frameworkService.getSingleFramework({
       frameworkId: newFrameworkId,
     });
@@ -323,15 +303,6 @@ describe('Frameworks', () => {
     const mockGuidelineDTO2 = createMockGuidelineDTO(
       'Guidelines Name: Nub',
       'Guideline Text: Pie',
-    );
-
-    const mockGuidelineId = await createMockGuidelineFromDTO(
-      newFrameworkId,
-      mockGuidelineDTO,
-    );
-    const mockGuidelineId2 = await createMockGuidelineFromDTO(
-      newFrameworkId,
-      mockGuidelineDTO2,
     );
 
     const successfulRes = await request(app.getHttpServer())
@@ -449,7 +420,6 @@ describe('Frameworks', () => {
       .expect(200);
 
     let guidelines = successfulRes.body;
-    console.log(guidelines);
 
     expect(guidelines.length).toEqual(3);
     for (let guideline of guidelines) {
@@ -462,7 +432,6 @@ describe('Frameworks', () => {
       .expect(200);
 
     guidelines = successfulRes.body;
-    console.log(guidelines);
 
     expect(guidelines.length).toEqual(1);
     for (let guideline of guidelines) {

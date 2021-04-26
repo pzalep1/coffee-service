@@ -71,7 +71,7 @@ export class FrameworkController {
   async createGuideline(
     @Param('frameworkId') frameworkId: string, 
     @Body('guideline') guideline: GuidelineWriteDTO
-  ): Promise<void> {
+  ): Promise<string> {
         return this.frameworkService.createGuideline({
           frameworkId: frameworkId, 
           guideline: guideline

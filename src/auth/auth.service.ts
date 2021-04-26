@@ -8,7 +8,6 @@ import {
 import { User } from '../Models/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
-import { Role } from './role.enum';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -26,11 +25,10 @@ export class AuthService {
       const isMatch = await bcrypt.compare(pass, foundUser.password);
 
       if (isMatch) {
-        console.log('Passwords Matched');
         const result = { _id: foundUser._id, email: foundUser.email };
         return result;
       } else {
-        console.log('Passwords Do not Match!');
+        throw new HttpException('Passwords do not match', HttpStatus.UNAUTHORIZED);
       }
     }
     return null;

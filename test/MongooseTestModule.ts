@@ -1,7 +1,6 @@
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { disconnect } from 'mongoose';
-import { AppModule } from '../src/app.module';
 
 let mongod: MongoMemoryServer;
 

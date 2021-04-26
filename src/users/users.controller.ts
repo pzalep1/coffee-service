@@ -58,7 +58,7 @@ export class UserController {
     return await this.userService.getUsers();
   }
 
-  // Used for like profile
+  // Used for profiles
   @UseGuards(JwtAuthGuard)
   @Get('/user/:userId')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
