@@ -130,7 +130,7 @@ describe('Users', () => {
       .send({ user: validUserLogin })
       .set('Accept', 'application/json');
 
-      expect(res).toBe(201);
+      expect(res.status).toBe(201);
       done();
     });
     it('should return a 401 because the password does not match', async (done) => {
