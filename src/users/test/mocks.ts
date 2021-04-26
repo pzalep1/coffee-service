@@ -32,6 +32,12 @@ export const missingEmail = {
     "password": "realestAdmin#44"
 }
 
+export const missingPassword = {
+    "name": "Cardi B",
+    "organization": "Swag Curriculum",
+    "email": "swagcurriculum@swaglearning.com"
+}
+
 export const missingName = {
     "email": "swagCurriculum@swaglearning.team",
     "organization": "Swag Curriculum",
@@ -49,4 +55,19 @@ export const validUser = {
     "name": "Cardi Bacardi",
     "organization": "Swag Curriculum",
     "password": "realestAdmin$999",
+}
+
+export const validUserLogin = {
+    "email": "swagCurriculum@swaglearning.com",
+    "password": "realestAdmin$999"
+}
+
+export const invalidUserLogin = {
+    "email": "swagCurriculum@swaglearning.com",
+    "password": "password"
+}
+
+export const unregisteredUser = {
+    "email": "iamafraud@fake.com",
+    "password": "Iamfake"
 }
