@@ -11,7 +11,16 @@ import { INestApplication } from '@nestjs/common';
 import { UserSchema } from '../../Models/user.schema';
 import { AuthService } from '../../auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { mockedJwtService, fakeUser, fakeUser2, fakeAdmin } from './mocks';
+import { 
+  mockedJwtService,
+  fakeUser,
+  fakeUser2,
+  fakeAdmin,
+  missingEmail,
+  missingName,
+  missingOrg,
+  validUser,
+} from './mocks';
 describe('Users', () => {
   let userController: UserController;
   let app: INestApplication;
