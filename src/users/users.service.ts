@@ -20,7 +20,7 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  async register(user: User): Promise<string> {
+  async register(user: User): Promise<any> {
     // Check that user is valid
     if (
       user &&
@@ -43,8 +43,6 @@ export class UserService {
           _id: new Types.ObjectId(),
         });
         await userDoc.save();
-        const token = await this.authService.login(user);
-        return token;
       } else {
         throw new HttpException('Email already in use!', HttpStatus.CONFLICT);
       }

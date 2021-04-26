@@ -12,7 +12,6 @@ import {
 
 import { User } from 'src/Models/user.schema';
 import { UserService } from './users.service';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { Role, Roles } from '../auth/roles.decorator';
@@ -36,15 +35,14 @@ export class UserController {
     return token;
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('/users/tokens')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({ })
-  async login(@Request() req): Promise<any> {
-    return await this.authService.login(req.user);
+  async login(@Body('user') user: any): Promise<any> {
+    return await this.authService.login(user);
   }
 
   // We should filter this if the user wants to see all the things
@@ -60,7 +58,7 @@ export class UserController {
 
   // Used for profiles
   @UseGuards(JwtAuthGuard)
-  @Get('/user/:userId')
+  @Get('/users/:userId')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })

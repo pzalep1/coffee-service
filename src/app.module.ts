@@ -12,9 +12,9 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     UsersModule,
     FrameworkModule,
+    AuthModule,
     ConfigModule.forRoot({isGlobal: true}), 
-    MongooseModule.forRoot(process.env.DB_URI, { connectionName: 'frameworkDB', useUnifiedTopology: true, useNewUrlParser: true }), 
-    AuthModule, 
+    MongooseModule.forRoot(process.env.DB_URI, { connectionName: 'frameworkDB', useUnifiedTopology: true, useNewUrlParser: true }),  
   ],
   controllers: [AppController],
   providers: [AppService],

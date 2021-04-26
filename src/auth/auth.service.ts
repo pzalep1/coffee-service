@@ -20,7 +20,8 @@ export class AuthService {
 
   async validateUser(user: string, pass: string): Promise<any> {
     const foundUser = await this.userService.getSingleUser(user);
-    if (user) {
+
+    if (foundUser) {
       await bcrypt.genSalt(10);
       const isMatch = await bcrypt.compare(pass, foundUser.password);
 
@@ -30,14 +31,17 @@ export class AuthService {
       } else {
         throw new HttpException('Passwords do not match', HttpStatus.UNAUTHORIZED);
       }
+    } else {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
-    return null;
   }
 
   async login(user: User): Promise<any> {
+    const validUser = await this.validateUser(user.email, user.password);
     // Check that the user has sent up the email and password
-    if (user && user.email !== undefined && user._id !== undefined) {
-      const payload = { email: user.email, _id: user._id };
+    if (validUser) {
+      const payload = { email: user.email, _id: user._id, name: user.name };
+      console.log(process.env.SECRET_KEY)
       return { access_token: this.jwtService.sign(payload) };
     }
   }
