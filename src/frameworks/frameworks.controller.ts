@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOkResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiBody, ApiTags } from '@nestjs/swagger';
-import { FrameworkWriteDTO } from 'src/DTO/frameworkDTO';
-import { GuidelineWriteDTO } from 'src/DTO/guidelineDTO';
-import { Framework } from 'src/Models/framework.schema';
-import { Guideline } from 'src/Models/guideline.schema';
+import { FrameworkWriteDTO } from '../DTO/frameworkDTO';
+import { GuidelineWriteDTO } from '../DTO/guidelineDTO';
+import { Framework } from '../Models/framework.schema';
+import { Guideline } from '../Models/guideline.schema';
 import { FrameworkService } from './frameworks.service';
 
 @ApiTags('frameworks')
@@ -16,7 +16,7 @@ export class FrameworkController {
   @ApiBadRequestResponse({ description: 'Invalid name, year, or author for framework' })
   @ApiBody({ description: 'Body for a framework', type: FrameworkWriteDTO })
   @UsePipes(new ValidationPipe({ transform: true }))
-  async createFramework(@Body('framework') framework: FrameworkWriteDTO): Promise<void> {
+  async createFramework(@Body('framework') framework: FrameworkWriteDTO): Promise<string> {
     return this.frameworkService.createFramework({
         framework: framework
     });
@@ -73,7 +73,7 @@ export class FrameworkController {
   async createGuideline(
     @Param('frameworkId') frameworkId: string, 
     @Body('guideline') guideline: GuidelineWriteDTO
-  ): Promise<void> {
+  ): Promise<string> {
         return this.frameworkService.createGuideline({
           frameworkId: frameworkId, 
           guideline: guideline

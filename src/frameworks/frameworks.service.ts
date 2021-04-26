@@ -17,7 +17,7 @@ export class FrameworkService {
         args: {
             framework: FrameworkWriteDTO
         }
-    ): Promise<void> {
+    ): Promise<string> {
         await this.validateFrameworkUpdates({frameworkUpdates: args.framework});
         const framework = new this.frameworkModel(
             { 
@@ -104,7 +104,7 @@ export class FrameworkService {
             frameworkId: string,
             guideline: any
         }
-    ): Promise<void> {
+    ): Promise<string> {
         const framework = await this.getSingleFramework({ frameworkId: args.frameworkId });
         const guideline = new this.guidelineModel(
             { 

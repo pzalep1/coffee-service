@@ -22,12 +22,11 @@ import {
 
 import { User } from 'src/Models/user.schema';
 import { UserService } from './users.service';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { Role, Roles } from '../auth/roles.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { UserWriteDTO } from 'src/DTO/userWriteDTO';
+import { RolesGuard } from '../auth/roles.guard';
+import { UserWriteDTO } from '../DTO/userWriteDTO';
 
 @ApiTags('users')
 @Controller()
@@ -50,16 +49,15 @@ export class UserController {
     return token;
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('/users/tokens')
   @ApiOperation({ summary: 'Login' })
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: 'User Login' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({})
-  async login(@Request() req): Promise<any> {
-    return await this.authService.login(req.user);
+  @ApiBody({ })
+  async login(@Body('user') user: any): Promise<any> {
+    return await this.authService.login(user);
   }
 
   // We should filter this if the user wants to see all the things
@@ -71,20 +69,21 @@ export class UserController {
   @ApiNotFoundResponse({ description: '' })
   @ApiBody({})
   async getAllUsers(): Promise<User[]> {
-    return await this.userService.getUsers();
+    const users = await this.userService.getUsers();
+    return users;
   }
 
-  // Used for like profile
+  // Used for profiles
   @UseGuards(JwtAuthGuard)
-  @Get('/user/:userId')
-  @ApiOperation({ summary: 'Get Information about a User' })
+  @Get('/users/:userId')
   @ApiOkResponse({ description: 'Welcome to the coffee-service API' })
   @ApiBadRequestResponse({ description: 'Swagger not working right' })
   @ApiForbiddenResponse({ description: '' })
   @ApiNotFoundResponse({ description: '' })
-  @ApiBody({})
-  async getUser(@Param('userId') userId: string): Promise<User> {
-    return await this.userService.getSingleUser(userId);
+  @ApiBody({ })
+  async getUser(@Param('userId') userId: string): Promise<any> {
+    let userValid = await this.userService.getUserById(userId);
+    return {_id: userValid._id, name: userValid.name, email: userValid.email, roles: userValid.roles, organization: userValid.organization};
   }
 
   // Token refresh route

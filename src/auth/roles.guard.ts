@@ -1,7 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role, ROLES_KEY } from './roles.decorator';
-import { User } from '../Models/user.schema';
 import { UserService } from '../users/users.service';
 
 @Injectable()
@@ -22,15 +21,13 @@ export class RolesGuard implements CanActivate {
     // Checking to see our user object in our request has the routes in them
     const { user } = context.switchToHttp().getRequest();
     if (user && user.email !== undefined) {
-      console.log(user);
       const foundUser = await this.userService.getSingleUser(user.email);
       if (foundUser) {
-        console.log(foundUser);
+        (foundUser);
         return requiredRoles.some(role => foundUser.roles?.includes(role));
       }
     }
 
-    console.log('No user in request object...');
     return Promise.resolve(false);
   }
 }

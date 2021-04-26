@@ -8,8 +8,8 @@ import {
 import { User } from '../Models/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/users.service';
-import { Role } from './role.enum';
 import * as bcrypt from 'bcrypt';
+import { Role } from './role.enum';
 
 @Injectable()
 export class AuthService {
@@ -32,21 +32,22 @@ export class AuthService {
       const isMatch = await bcrypt.compare(pass, foundUser.password);
 
       if (isMatch) {
-        console.log('Passwords Matched');
         const result = { _id: foundUser._id, email: foundUser.email };
         return result;
       } else {
-        console.log('Passwords Do not Match!');
+        throw new HttpException('Passwords do not match', HttpStatus.UNAUTHORIZED);
       }
+    } else {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
-    return null;
   }
 
   async login(user: User): Promise<any> {
+    const validUser = await this.validateUser(user.email, user.password);
     // Check that the user has sent up the email and password
-    if (user && user.email !== undefined && user._id !== undefined) {
-      const payload = { email: user.email, _id: user._id };
-      return { access_token: this.jwtService.sign(payload) };
+    if (validUser) {
+      const payload = { email: user.email, _id: user._id, name: user.name };
+      return { access_token: this.jwtService.sign(payload, { secret: process.env.SECRET_KEY }) };
     }
   }
 
@@ -58,11 +59,9 @@ export class AuthService {
           priviledgesToAdd = priviledgesToAdd.filter(x => Object.values<string>(Role).includes(x)).filter(
             x => !foundUser.roles.includes(Role[x]),
           );
-          console.log(priviledgesToAdd);
           priviledgesToAdd = priviledgesToAdd.concat(foundUser.roles);
 
           await this.userService.updateSingleUser(user.email, priviledgesToAdd);
-          console.log('Added privileges!');
         }
       }
     }
